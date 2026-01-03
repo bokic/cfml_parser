@@ -235,8 +235,8 @@ public class CFParse {
 
 
         ret.put("id", obj.id);
-        ret.put("startToken", create_Token(obj.getStartToken()));
-        ret.put("endToken", create_Token(obj.getEndToken()));
+        //ret.put("startToken", create_Token(obj.getStartToken())); // Crashes!
+        //ret.put("endToken", create_Token(obj.getEndToken()));
 
         var namedChildren = new JSONObject();
         if (obj.getNamedChildren() != null) {
@@ -351,9 +351,9 @@ public class CFParse {
         ret.put("finalParams", finalParams);
 
         //Vector complexParams = new Vector();
-        //boolean containsDestructArguments = false;
-        //public Token openParenToken = null;
-        //public Token closeParenToken = null;
+        ret.put("containsDestructArguments", obj.containsDestructArguments);
+        ret.put("openParenToken", create_Token(obj.openParenToken));
+        ret.put("closeParenToken", create_Token(obj.closeParenToken));
 
         return ret;
     }
@@ -637,13 +637,12 @@ public class CFParse {
         ret.put("class", "Token");
 
         //public transient CFIndex index;
-        //private boolean isCopy = false;
         ret.put("kind", obj.kind);
         ret.put("beginLine", obj.getBeginLine());
         ret.put("beginColumn", obj.getBeginColumn());
         ret.put("endLine", obj.getEndLine());
         ret.put("endColumn", obj.getEndColumn());
-        //int adjustedBeginColumn;
+        ret.put("adjustedBeginColumn", obj.adjustedBeginColumn);
         ret.put("image", obj.image);
         ret.put("specialToken", create_Token(obj.specialToken));
 
@@ -704,10 +703,9 @@ public class CFParse {
 
         ret.put("type", obj.getType());
         ret.put("isIIFE", obj.isIIFE());
-        // lBracketToken
-        // rBracketToken
+        ret.put("lBracketToken", create_Token(obj.lBracketToken));
+        ret.put("rBracketToken", create_Token(obj.rBracketToken));
         ret.put("exprInitializerNode", create_Node(obj.getExprInitializer()));
-        //private boolean hasSafeHook = false;
         ret.put("spreadOperation", obj.isSpreadOperationType());
 
         return ret;
