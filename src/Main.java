@@ -1,3 +1,5 @@
+import com.adobe.editor.cfml.parser.generated.CFParse;
+
 void main(String[]args) {
 
     String pathName;
@@ -8,5 +10,7 @@ void main(String[]args) {
         pathName = ".";
     }
 
-    com.adobe.editor.cfml.parser.generated.CFParse.parseFileOrDir(pathName);
+    CFParse.init();
+
+    CFParse.parseFileOrDir(pathName);
 }

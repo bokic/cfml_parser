@@ -1,31 +1,34 @@
 package com.adobe.editor.cfml.parser.generated;
 import com.adobe.coldfusion.ls.CFMLParserManager;
+import com.adobe.editor.cfml.preferences.PreferencesManager;
 import com.adobe.editor.cfml.util.BOMUtil;
 import com.adobe.ide.coldfusion.dictionary.DictionaryManager;
 
 import org.json.*;
 
 import java.io.*;
+import java.util.HashMap;
 
 
 public class CFParse {
 
     private static JSONObject create_StatementNode(StatementNode obj) throws JSONException {
-        //assert(obj.getClass() == StatementNode.class);
         if (obj == null) {
             return null;
         }
 
-        JSONObject ret = create_Node(obj);
+        JSONObject ret = create_SimpleNode(obj);
 
-        if (obj.extagcToken != null) {
-            ret.put("extagcToken", create_Token(obj.extagcToken));
-        }
+        ret.put("extagcToken", create_Token(obj.extagcToken));
 
         return ret;
     }
 
     private static JSONObject create_ASToperator(ASToperator obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_ExprNode(obj);
 
         ret.put("class", "ASToperator");
@@ -36,6 +39,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcftry(ASTcftry obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_StatementNode(obj);
 
         ret.put("class", "ASTcftry");
@@ -57,6 +64,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTtagAttribute(ASTtagAttribute obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_Node(obj);
 
         ret.put("class", "ASTtagAttribute");
@@ -67,6 +78,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcffunction(ASTcffunction obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_ASTfunctionDefinition(obj);
 
         ret.put("class", "ASTcffunction");
@@ -81,25 +96,19 @@ public class CFParse {
         ret.put("attrMap", attrMap);
 
         ret.put("output", obj.output);
-
-        if (obj.accessModifier != null) {
-            ret.put("accessModifier", obj.accessModifier);
-        }
-
-        if (obj.openBraceToken != null) {
-            ret.put("openBraceToken", create_Token(obj.openBraceToken));
-        }
-
-        if (obj.closeBraceToken != null) {
-            ret.put("closeBraceToken", create_Token(obj.closeBraceToken));
-        }
-
+        ret.put("accessModifier", obj.accessModifier);
+        ret.put("openBraceToken", create_Token(obj.openBraceToken));
+        ret.put("closeBraceToken", create_Token(obj.closeBraceToken));
         ret.put("autoGetterSetter", obj.isAutoGetterSetter());
 
         return ret;
     }
 
     private static JSONObject create_ASTfunctionDefinition(ASTfunctionDefinition obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_StatementNode(obj);
 
         ret.put("class", "ASTfunctionDefinition");
@@ -114,10 +123,18 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTexprlist(ASTexprlist obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         return create_Node(obj);
     }
 
     private static JSONObject create_ASTreturnStatement(ASTreturnStatement obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_StatementNode(obj);
 
         ret.put("class", "ASTreturnStatement");
@@ -128,20 +145,26 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTvariableDefinition(ASTvariableDefinition obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_SimpleNode(obj);
 
         ret.put("class", "ASTvariableDefinition");
 
         ret.put("name", obj.name);
-        if (obj.initializer != null)
-            ret.put("initializer", create_ExprNode(obj.initializer));
+        ret.put("initializer", create_ExprNode(obj.initializer));
         ret.put("variableNameToken", create_Token(obj.variableNameToken));
 
         return ret;
     }
 
     private static JSONObject create_ASTStructInitializer(ASTStructInitializer obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_ExprNode(obj); // TODO Fix here!
 
         JSONObject initializers = new JSONObject();
@@ -156,6 +179,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcfrethrow(ASTcfrethrow obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret;
 
         ret = create_TagNode(obj);
@@ -165,23 +192,59 @@ public class CFParse {
     }
 
     private static JSONObject create_SimpleNode(SimpleNode obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_Node(obj);
 
-        if (obj.getStartToken() != null) {
-            ret.put("StartToken", create_Token(obj.getStartToken()));
-        }
+        //protected Node parent;
+        //protected SimpleNode[] children;
+        //protected int id;
+        //protected transient CFMLParserBase parser;
+        //private Token startToken;
+        //private Token endToken;
+        //private CaseInsensitiveHashtable namedChildren;
+        //private Node defaultVal;
+        //protected ErrorNode errorNode;
+        //private int errorCountAtNode;
+        //protected Token closingToken;
+        //ASTfunctionDefinition functionDef;
+        //private boolean functionDefEvaluated;
+        //private static NodeComparator nodeComparator = new NodeComparator();
+        //private boolean nodeHasComment;
+        //ArrayList<SimpleNode> spannedNodes;
+        //public boolean colorizerVisited;
+        //private Token hashBeginToken;
+        //private Token hashEndToken;
 
-        if (obj.getEndToken() != null) {
-            ret.put("EndTToken", create_Token(obj.getEndToken()));
-        }
 
-        //ret.put("TaskPriority", obj.jjtGetChild());
-        ret.put("string", obj.toString());
+        ret.put("id", obj.id);
+        ret.put("startToken", create_Token(obj.getStartToken()));
+        ret.put("endToken", create_Token(obj.getEndToken()));
+
+        var namedChildren = new JSONObject();
+        if (obj.getNamedChildren() != null) {
+            for (var item : obj.getNamedChildren().entrySet()) {
+                var name = item.getKey();
+                var value = item.getValue();
+
+                namedChildren.put(name, create_SimpleNode(value));
+            }
+        }
+        ret.put("namedChildren", namedChildren);
+
+        ret.put("defaultVal", create_Node(obj.getDefaultVal()));
+        ret.put("errorNode", create_Node(obj.getDefaultVal()));
 
         return ret;
     }
 
     private static JSONObject create_ASTcfcomment(ASTcfcomment obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_SimpleNode(obj);
 
         ret.put("class", "ASTcfcomment");
@@ -192,7 +255,35 @@ public class CFParse {
         return ret;
     }
 
+    private static JSONObject create_ASTcfcomponent(ASTcfcomponent obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_TagNode(obj);
+
+        ret.put("class", "ASTcfcomponent");
+
+        return ret;
+    }
+
+    private static JSONObject create_ASTelidedText(ASTelidedText obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_SimpleNode(obj);
+
+        ret.put("class", "ASTelidedText");
+
+        return ret;
+    }
+
     private static JSONObject create_ASTcfbreak(ASTcfbreak obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_StatementNode(obj);
 
         ret.put("class", "ASTcfbreak");
@@ -203,6 +294,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcfargument(ASTcfargument obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_TagNode(obj);
 
         ret.put("class", "ASTcfargument");
@@ -214,6 +309,9 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTparameterDefinition(ASTparameterDefinition obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_SimpleNode(obj);
 
@@ -241,6 +339,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTsimpleVariableReference(ASTsimpleVariableReference obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_VariableReference(obj);
 
         ret.put("class", "ASTsimpleVariableReference");
@@ -253,6 +355,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTarrayReference(ASTarrayReference obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_VariableReference(obj);
 
         ret.put("class", "ASTarrayReference");
@@ -265,9 +371,7 @@ public class CFParse {
             }
         }
         ret.put("indices", indices);
-
-        if (obj.getRvalIndex() != null)
-            ret.put("rvalIndex", obj.getRvalIndex().toString());
+        ret.put("rvalIndex", obj.getRvalIndex());
 
         return ret;
     }
@@ -279,13 +383,8 @@ public class CFParse {
 
         JSONObject ret = create_StatementNode(obj);
 
-        if (obj.tagsWithSecondStartToken != null)
-        {
-            ret.put("tagsWithSecondStartToken", obj.tagsWithSecondStartToken);
-        }
-
-        if (obj.attrList != null)
-            ret.put("attrList", create_ASTexprlist(obj.attrList));
+        ret.put("tagsWithSecondStartToken", obj.tagsWithSecondStartToken);
+        ret.put("attrList", create_ASTexprlist(obj.attrList));
 
         JSONObject attrMap = null;
         if (obj.attrMap != null) {
@@ -304,11 +403,7 @@ public class CFParse {
         ret.put("calledFromScript", obj.calledFromScript);
         ret.put("switchAttrList", obj.switchAttrList);
         ret.put("switchAttrName", obj.switchAttrName);
-
-        if (obj.startTagEndToken != null) {
-            ret.put("startTagEndToken", create_Token(obj.startTagEndToken));
-        }
-
+        ret.put("startTagEndToken", create_Token(obj.startTagEndToken));
         ret.put("tagCount", obj.tagCount);
         ret.put("slot", obj.slot);
         ret.put("isTagInvocationInScript", obj.isTagInvocationInScript);
@@ -320,6 +415,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcfswitch(ASTcfswitch obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_TagNode(obj);
 
         ret.put("class", "ASTcfswitch");
@@ -332,6 +431,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcfcase(ASTcfcase obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_TagNode(obj);
 
         ret.put("class", "ASTcfcase");
@@ -343,6 +446,10 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcfloop(ASTcfloop obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_TagNode(obj);
 
         ret.put("class", "ASTcfloop");
@@ -353,22 +460,23 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTruntimeCall(ASTruntimeCall obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
         JSONObject ret = create_VariableReference(obj);
 
         ret.put("class", "ASTruntimeCall");
 
         ret.put("isSafePreHook", obj.isSafePreHook());
         ret.put("isSafePostHook", obj.isSafePostHook());
-        if (obj.getNewArgumentCfc() != null)
-            ret.put("newArgumentCfc", obj.getNewArgumentCfc());
-        //if (obj.arguments != null)
-        //    ret.put("arguments", create_ASTfuncparams(obj.arguments));
+        ret.put("newArgumentCfc", obj.getNewArgumentCfc());
+        //ret.put("arguments", create_ASTfuncparams(obj.arguments));
         ret.put("isSimpleReference", obj.hasSimpleReference());
         ret.put("newOperator", obj.isNew());
         // newArgumentCfcToken
         // dynamicCFCNameExpression
-        if (obj.getFuncName() != null)
-            ret.put("funcName", create_ExprNode(obj.getFuncName()));
+        ret.put("funcName", create_ExprNode(obj.getFuncName()));
         ret.put("isAssociativeArrayNotation", obj.isAssociativeArrayNotation());
         if (obj.parameterShadow != null) {
             JSONArray parameterShadow = new JSONArray();
@@ -383,7 +491,9 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTpcdata(ASTpcdata obj) throws JSONException {
-        assert (obj.getClass() == ASTpcdata.class);
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_StatementNode(obj);
 
@@ -404,7 +514,9 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcfscript(ASTcfscript obj) throws JSONException {
-        assert (obj.getClass() == ASTcfscript.class);
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_TagNode(obj);
 
@@ -416,7 +528,9 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcftag(ASTcftag obj) throws JSONException {
-        assert (obj.getClass() == ASTcftag.class);
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_TagNode(obj);
 
@@ -428,26 +542,29 @@ public class CFParse {
     }
 
     private static JSONObject create_VariableReference(VariableReference obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_ExprNode(obj);
 
         ret.put("class", "VariableReference");
 
         ret.put("isLeafReference", obj.isLeafReference);
-        if (obj.getStem() != null)
-            ret.put("stem", create_VariableReference(obj.getStem()));
+        ret.put("stem", create_VariableReference(obj.getStem()));
         ret.put("isStatic", obj.isStatic());
         ret.put("isStaticAccessor", obj.isStaticAccessor());
         ret.put("accessorReference", obj.getAccessorReference());
-        if (obj.getNewKeywordToken() != null)
-            ret.put("newKeywordToken", create_Token(obj.getNewKeywordToken()));
+        ret.put("newKeywordToken", create_Token(obj.getNewKeywordToken()));
         ret.put("isLocalVariable", obj.isLocalVariable());
 
         return ret;
     }
 
     private static JSONObject create_ASTstructureReference(ASTstructureReference obj) throws JSONException {
-        //assert(obj.getClass() == ASTstructureReference.class);
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_VariableReference(obj);
 
@@ -468,16 +585,19 @@ public class CFParse {
     }
 
     /*private static JSONObject create_ASTevalcfoutput(ASTevalcfoutput obj) throws JSONException {
-        assert (obj.getClass() == ASTevalcfoutput.class);
+        if (obj == null) {
+            return null;
+        }
 
         return create_SimpleNode(obj);
     }*/
 
     private static JSONObject create_Token(Token obj) throws JSONException {
-        JSONObject ret = new JSONObject();
-
-        if (obj == null)
+        if (obj == null) {
             return null;
+        }
+
+        JSONObject ret = new JSONObject();
 
         ret.put("kind", obj.kind);
         ret.put("beginLine", obj.getBeginLine());
@@ -491,9 +611,13 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTcfscriptStatement(ASTcfscriptStatement obj) throws JSONException {
-        //assert(obj.getClass() == ASTcfscriptStatement.class);
+        if (obj == null) {
+            return null;
+        }
 
         JSONObject ret = create_StatementNode(obj);
+
+        obj.getNamedChildren();
 
         ret.put("class", "ASTstructureReference");
 
@@ -511,11 +635,11 @@ public class CFParse {
     }
 
     private static JSONObject create_Node(Node obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
 
         var ret = new JSONObject();
-
-        if (obj == null)
-            return null;
 
         if (obj.jjtGetNumChildren() > 0) {
             var children = new JSONArray();
@@ -532,13 +656,15 @@ public class CFParse {
     }
 
     private static JSONObject create_ExprNode(ExprNode obj) throws JSONException {
-        //assert(obj.getClass() == ExprNode.class);
+        if (obj == null) {
+            return null;
+        }
+
         var ret = create_Node(obj);
 
         ret.put("class", "ExprNode");
 
-        if (obj.getType() != null)
-            ret.put("type", obj.getType().toString());
+        ret.put("type", obj.getType());
         ret.put("isIIFE", obj.isIIFE());
         // lBracketToken
         // rBracketToken
@@ -549,6 +675,9 @@ public class CFParse {
     }
 
     private static JSONObject create_ASTliteral(ASTliteral obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
 
         var ret = create_ExprNode(obj);
 
@@ -564,8 +693,20 @@ public class CFParse {
                 tokens.put(token.toString());
             } else if (token.getClass() == Integer.class) {
                 tokens.put(token.toString());
+            } else if (token.getClass() == ASTsimpleVariableReference.class) {
+                tokens.put(create_ASTsimpleVariableReference((ASTsimpleVariableReference)token));
+            } else if (token.getClass() == ASTstructureReference.class) {
+                tokens.put(create_ASTstructureReference((ASTstructureReference)token));
+            } else if (token.getClass() == ASTruntimeCall.class) {
+                tokens.put(create_ASTruntimeCall((ASTruntimeCall)token));
+            } else if (token.getClass() == ASToperator.class) {
+                tokens.put(create_ASToperator((ASToperator)token));
+            } else if (token.getClass() == ASTarrayReference.class) {
+                tokens.put(create_ASTarrayReference((ASTarrayReference)token));
+            } else if (token.getClass() == ASTliteral.class) {
+                tokens.put(create_ASTliteral((ASTliteral)token));
             } else {
-                System.out.println("Unsupported type: " + token);
+                System.out.println("Unsupported type: " + token.getClass());
                 System.exit(1);
             }
         }
@@ -574,8 +715,12 @@ public class CFParse {
         return ret;
     }
 
-    private static  JSONObject create_ASTevalcfoutput(ASTevalcfoutput obj)
+    private static JSONObject create_ASTevalcfoutput(ASTevalcfoutput obj)
     {
+        if (obj == null) {
+            return null;
+        }
+
         var ret = create_SimpleNode(obj);
 
         ret.put("class", "ASTevalcfoutput");
@@ -613,14 +758,18 @@ public class CFParse {
             case ASTStructInitializer child       -> ret = create_ASTStructInitializer(child);
             case ASTcfrethrow child               -> ret = create_ASTcfrethrow(child);
             case ASTcfcomment child               -> ret = create_ASTcfcomment(child);
+            case ASTcfcomponent child             -> ret = create_ASTcfcomponent(child);
+            case ASTelidedText child              -> ret = create_ASTelidedText(child);
+            case ASTexprlist child                -> ret = create_ASTexprlist(child);
             case null, default -> {
                 ret = new JSONObject();
                 ret.put("class", "Unknown");
+                ret.put("obj", node);
                 if (node != null) {
-                    ret.put("obj", node.toString());
+                    System.out.println("Unknown class: " + node.getClass());
+                } else {
+                    System.out.println("Unknown class: null");
                 }
-
-                System.out.println("Unknown class: " + node);
                 System.exit(1);
             }
         }
@@ -643,8 +792,8 @@ public class CFParse {
         if ((!pathName.toLowerCase().endsWith(".cfm")) && (!pathName.toLowerCase().endsWith(".cfc")))
             return;
 
-        try {
 
+        try {
             InputStream inStream = new FileInputStream(pathName);
             Reader reader = BOMUtil.createReader(inStream);
             ASCII_CharStream charStream = new ASCII_CharStream(reader);
@@ -677,8 +826,6 @@ public class CFParse {
     }
 
     static public void parseFileOrDir(String pathName) {
-        DictionaryManager.initDictionaries();
-
         File isDir = new File(pathName);
 
         if (isDir.isDirectory()) {
@@ -696,5 +843,15 @@ public class CFParse {
         }
 
         parseFile(pathName);
+    }
+
+    static public void init()
+    {
+        DictionaryManager.initDictionaries();
+        PreferencesManager.getInstance();
+        HashMap<String, Object> prefs = new HashMap<>();
+        prefs.put("profile.name", "default");
+        prefs.put("profile.location", ".");
+        PreferencesManager.setActivePreferences(prefs);
     }
 }

@@ -20,6 +20,8 @@ wget --unlink "$EXTENSION_URL"
 rm -rf vspackage
 
 7z e -y vspackage\~ $JAR_PATHNAME
+7z e -y vspackage\~ extension/default-profiles/default.xml
+
 rm -rf vspackage\~
 
 zip -d $JAR_FILENAME 'META-INF/*.SF' 'META-INF/*.RSA'
