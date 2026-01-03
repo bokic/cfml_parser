@@ -38,6 +38,46 @@ public class CFParse {
         return ret;
     }
 
+    private static JSONObject create_ASTcfcatch(ASTcfcatch obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_TagNode(obj);
+
+        ret.put("class", "ASTcfcatch");
+
+        ret.put("varName", obj.getVarname());
+
+        JSONArray exceptionTypes = new JSONArray();
+        for(var exceptionType: obj.getExceptionTypes()) {
+            exceptionTypes.put(exceptionType);
+        }
+        ret.put("exceptionTypes", exceptionTypes);
+
+        JSONArray additionalExceptionExpr = new JSONArray();
+        if (obj.getAdditionalExceptionExpr() != null) {
+            for (var item : obj.getAdditionalExceptionExpr()) {
+                additionalExceptionExpr.put(create_ExprNode(item));
+            }
+        }
+        ret.put("additionalExceptionExpr", additionalExceptionExpr);
+
+        return ret;
+    }
+
+    private static JSONObject create_ASTcffinally(ASTcffinally obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_ASTcftag(obj);
+
+        ret.put("class", "ASTcffinally");
+
+        return ret;
+    }
+
     private static JSONObject create_ASTcftry(ASTcftry obj) throws JSONException {
         if (obj == null) {
             return null;
@@ -47,19 +87,16 @@ public class CFParse {
 
         ret.put("class", "ASTcftry");
 
-        //Vector catchBlocks = new Vector();
-        //ASTcffinally finallyStmt = null;
-
-        /*JSONArray catchBlocks = null;
+        JSONArray catchBlocks = null;
         if (obj.catchBlocks != null) {
             catchBlocks = new JSONArray();
             for (var item : obj.catchBlocks) {
                 catchBlocks.put(create_ASTcfcatch((ASTcfcatch) item));
             }
         }
-        ret.put("catchBlocks", catchBlocks);*/
+        ret.put("catchBlocks", catchBlocks);
 
-        //ret.put("finallyStmt", create_ASTcffinally(obj.finallyStmt));
+        ret.put("finallyStmt", create_ASTcffinally(obj.finallyStmt));
         ret.put("tryCatchUniqueSuffix", obj.tryCatchUniqueSuffix);
         ret.put("isScript", obj.isScript);
 
@@ -172,12 +209,34 @@ public class CFParse {
         return ret;
     }
 
+    private static JSONObject create_ArrayStructInitializer(ArrayStructInitializer obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_ExprNode(obj);
+
+        ret.put("class", "ArrayStructInitializer");
+
+        ret.put("synthetic", obj.synthetic);
+
+        JSONArray functions = new JSONArray();
+        if (obj.functions != null) {
+            for (var function : obj.functions) {
+                functions.put(create_ASTruntimeCall(function));
+            }
+        }
+        ret.put("functions", functions);
+
+        return ret;
+    }
+
     private static JSONObject create_ASTStructInitializer(ASTStructInitializer obj) throws JSONException {
         if (obj == null) {
             return null;
         }
 
-        JSONObject ret = create_ExprNode(obj); // TODO Fix here! ArrayStructInitializer
+        JSONObject ret = create_ArrayStructInitializer(obj);
 
         ret.put("class", "ASTStructInitializer");
 
