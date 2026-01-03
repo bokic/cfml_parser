@@ -7,7 +7,7 @@ import com.adobe.ide.coldfusion.dictionary.DictionaryManager;
 import org.json.*;
 
 import java.io.*;
-import java.util.HashMap;
+import java.util.*;
 
 
 public class CFParse {
@@ -33,7 +33,7 @@ public class CFParse {
 
         ret.put("class", "ASToperator");
 
-        //ret.put("operator", create_Token(obj.getOperator()));
+        ret.put("operator", create_Token(obj.getOperator()));
 
         return ret;
     }
@@ -47,6 +47,9 @@ public class CFParse {
 
         ret.put("class", "ASTcftry");
 
+        //Vector catchBlocks = new Vector();
+        //ASTcffinally finallyStmt = null;
+
         /*JSONArray catchBlocks = null;
         if (obj.catchBlocks != null) {
             catchBlocks = new JSONArray();
@@ -54,11 +57,11 @@ public class CFParse {
                 catchBlocks.put(create_ASTcfcatch((ASTcfcatch) item));
             }
         }
-        ret.put("catchBlocks", catchBlocks);
+        ret.put("catchBlocks", catchBlocks);*/
 
-        ret.put("finallyStmt", create_ASTcffinally(obj.finallyStmt));
+        //ret.put("finallyStmt", create_ASTcffinally(obj.finallyStmt));
         ret.put("tryCatchUniqueSuffix", obj.tryCatchUniqueSuffix);
-        ret.put("isScript", obj.isScript);*/
+        ret.put("isScript", obj.isScript);
 
         return ret;
     }
@@ -68,11 +71,13 @@ public class CFParse {
             return null;
         }
 
-        JSONObject ret = create_Node(obj);
+        JSONObject ret = create_SimpleNode(obj);
 
         ret.put("class", "ASTtagAttribute");
 
-        //ret.put("attrName", create_Token(obj.getNameToken()));
+        ret.put("attrName", create_Token(obj.getAttributeNameToken()));
+        ret.put("attrValue", create_SimpleNode(obj.getAttributeValueNode()));
+        ret.put("annotatedAttribute", obj.annotatedAttribute);
 
         return ret;
     }
@@ -85,6 +90,8 @@ public class CFParse {
         JSONObject ret = create_ASTfunctionDefinition(obj);
 
         ret.put("class", "ASTcffunction");
+
+        ret.put("attrList", create_ASTexprlist(obj.attrList));
 
         JSONObject attrMap = null;
         if (obj.attrMap != null) {
@@ -116,6 +123,7 @@ public class CFParse {
         ret.put("functionName", create_Token(obj.functionName));
         ret.put("parameterDefinition", create_ASTparameterDefinition(obj.parameterDefinition));
         ret.put("calledName", obj.calledName);
+        //Hashtable localVars = new Hashtable();
         ret.put("closure", obj.closure);
         ret.put("anonymousClosure", obj.anonymousClosure);
 
@@ -127,7 +135,11 @@ public class CFParse {
             return null;
         }
 
-        return create_Node(obj);
+        JSONObject ret = create_SimpleNode(obj);
+
+        ret.put("class", "ASTexprlist");
+
+        return ret;
     }
 
     private static JSONObject create_ASTreturnStatement(ASTreturnStatement obj) throws JSONException {
@@ -135,11 +147,11 @@ public class CFParse {
             return null;
         }
 
-        JSONObject ret = create_StatementNode(obj);
+        JSONObject ret = create_ASTcftag(obj);
 
         ret.put("class", "ASTreturnStatement");
 
-        //ret.put("containsQE", obj.isContainsQE());
+        ret.put("tagName", obj.getTagName());
 
         return ret;
     }
@@ -165,7 +177,9 @@ public class CFParse {
             return null;
         }
 
-        JSONObject ret = create_ExprNode(obj); // TODO Fix here!
+        JSONObject ret = create_ExprNode(obj); // TODO Fix here! ArrayStructInitializer
+
+        ret.put("class", "ASTStructInitializer");
 
         JSONObject initializers = new JSONObject();
         for (var key : obj.initializers.keySet()) {
@@ -183,9 +197,8 @@ public class CFParse {
             return null;
         }
 
-        JSONObject ret;
+        JSONObject ret = create_TagNode(obj);
 
-        ret = create_TagNode(obj);
         ret.put("class", "ASTcfrethrow");
 
         return ret;
@@ -197,6 +210,8 @@ public class CFParse {
         }
 
         JSONObject ret = create_Node(obj);
+
+        ret.put("class", "SimpleNode");
 
         //protected Node parent;
         //protected SimpleNode[] children;
@@ -284,11 +299,11 @@ public class CFParse {
             return null;
         }
 
-        JSONObject ret = create_StatementNode(obj);
+        JSONObject ret = create_ASTcftag(obj);
 
         ret.put("class", "ASTcfbreak");
 
-        //ret.put("label", obj.getLabel());
+        ret.put("label", obj.getLabel());
 
         return ret;
     }
@@ -335,6 +350,11 @@ public class CFParse {
         }
         ret.put("finalParams", finalParams);
 
+        //Vector complexParams = new Vector();
+        //boolean containsDestructArguments = false;
+        //public Token openParenToken = null;
+        //public Token closeParenToken = null;
+
         return ret;
     }
 
@@ -347,7 +367,6 @@ public class CFParse {
 
         ret.put("class", "ASTsimpleVariableReference");
 
-        //private static Hashtable potentialBuiltinScopeNames = new Hashtable();
         ret.put("codegenVarName", obj.getCodegenVariableName());
         ret.put("isSafePreHook", obj.isSafePreHook());
 
@@ -371,6 +390,7 @@ public class CFParse {
             }
         }
         ret.put("indices", indices);
+
         ret.put("rvalIndex", obj.getRvalIndex());
 
         return ret;
@@ -382,6 +402,8 @@ public class CFParse {
         }
 
         JSONObject ret = create_StatementNode(obj);
+
+        ret.put("class", "TagNode");
 
         ret.put("tagsWithSecondStartToken", obj.tagsWithSecondStartToken);
         ret.put("attrList", create_ASTexprlist(obj.attrList));
@@ -450,11 +472,11 @@ public class CFParse {
             return null;
         }
 
-        JSONObject ret = create_TagNode(obj);
+        JSONObject ret = create_ASTcftag(obj);
 
         ret.put("class", "ASTcfloop");
 
-        //ret.put("label", obj.getLabel());
+        ret.put("tagName", obj.getTagName());
 
         return ret;
     }
@@ -536,7 +558,12 @@ public class CFParse {
 
         ret.put("class", "ASTcftag");
 
-        //ret.put("calledName", obj.getCalledName());
+        ret.put("varName", obj.getVariableName());
+        ret.put("varAttributeName", obj.getVariableAttributeName());
+        ret.put("varNode", create_SimpleNode(obj.getVariableNode()));
+        ret.put("calledName", obj.getCalledName());
+        ret.put("lBraceToken", create_Token(obj.lBraceToken));
+        ret.put("rBraceToken", create_Token(obj.rBraceToken));
 
         return ret;
     }
@@ -584,26 +611,39 @@ public class CFParse {
         return ret;
     }
 
-    /*private static JSONObject create_ASTevalcfoutput(ASTevalcfoutput obj) throws JSONException {
-        if (obj == null) {
-            return null;
-        }
-
-        return create_SimpleNode(obj);
-    }*/
-
-    private static JSONObject create_Token(Token obj) throws JSONException {
+    private static JSONObject create_BaseToken(BaseToken obj) throws JSONException {
         if (obj == null) {
             return null;
         }
 
         JSONObject ret = new JSONObject();
 
+        ret.put("class", "BaseToken");
+
+        ret.put("actualStartColumnOffset", obj.actualStartColumnOffset);
+        ret.put("actualEndColumnOffset", obj.actualEndColumnOffset);
+        ret.put("actualLineBeginColumn", obj.actualLineBeginColumn);
+
+        return ret;
+    }
+
+    private static JSONObject create_Token(Token obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_BaseToken(obj);
+
+        ret.put("class", "Token");
+
+        //public transient CFIndex index;
+        //private boolean isCopy = false;
         ret.put("kind", obj.kind);
         ret.put("beginLine", obj.getBeginLine());
         ret.put("beginColumn", obj.getBeginColumn());
         ret.put("endLine", obj.getEndLine());
         ret.put("endColumn", obj.getEndColumn());
+        //int adjustedBeginColumn;
         ret.put("image", obj.image);
         ret.put("specialToken", create_Token(obj.specialToken));
 
@@ -617,9 +657,7 @@ public class CFParse {
 
         JSONObject ret = create_StatementNode(obj);
 
-        obj.getNamedChildren();
-
-        ret.put("class", "ASTstructureReference");
+        ret.put("class", "create_ASTcfscriptStatement");
 
         ret.put("stmtType", obj.stmtType);
         ret.put("assignmentOpToken", create_Token(obj.assignmentOpToken));
@@ -660,7 +698,7 @@ public class CFParse {
             return null;
         }
 
-        var ret = create_Node(obj);
+        var ret = create_SimpleNode(obj);
 
         ret.put("class", "ExprNode");
 
@@ -669,6 +707,7 @@ public class CFParse {
         // lBracketToken
         // rBracketToken
         ret.put("exprInitializerNode", create_Node(obj.getExprInitializer()));
+        //private boolean hasSafeHook = false;
         ret.put("spreadOperation", obj.isSpreadOperationType());
 
         return ret;
@@ -682,8 +721,6 @@ public class CFParse {
         var ret = create_ExprNode(obj);
 
         ret.put("class", "ASTliteral");
-
-        ret.put("image", obj.image);
 
         var tokens = new JSONArray();
         for (int c = 0; c < obj.tokens.size(); c++) {
@@ -711,6 +748,7 @@ public class CFParse {
             }
         }
         ret.put("tokens", tokens);
+        ret.put("image", obj.image);
 
         return ret;
     }
@@ -792,6 +830,7 @@ public class CFParse {
         if ((!pathName.toLowerCase().endsWith(".cfm")) && (!pathName.toLowerCase().endsWith(".cfc")))
             return;
 
+        System.err.println("Parsing: " + pathName);
 
         try {
             InputStream inStream = new FileInputStream(pathName);
