@@ -272,30 +272,18 @@ public class CFParse {
 
         ret.put("class", "SimpleNode");
 
-        //protected Node parent;
-        //protected SimpleNode[] children;
-        //protected int id;
-        //protected transient CFMLParserBase parser;
-        //private Token startToken;
-        //private Token endToken;
-        //private CaseInsensitiveHashtable namedChildren;
-        //private Node defaultVal;
-        //protected ErrorNode errorNode;
-        //private int errorCountAtNode;
-        //protected Token closingToken;
-        //ASTfunctionDefinition functionDef;
-        //private boolean functionDefEvaluated;
-        //private static NodeComparator nodeComparator = new NodeComparator();
-        //private boolean nodeHasComment;
-        //ArrayList<SimpleNode> spannedNodes;
-        //public boolean colorizerVisited;
-        //private Token hashBeginToken;
-        //private Token hashEndToken;
-
+        //protected Node parent; // Stack overflow
+        JSONArray children = new JSONArray();
+        if (obj.children != null) {
+            for(var child: obj.children) {
+                children.put(create_SimpleNode(child));
+            }
+        }
+        ret.put("children", children);
 
         ret.put("id", obj.id);
-        //ret.put("startToken", create_Token(obj.getStartToken())); // Crashes!
-        //ret.put("endToken", create_Token(obj.getEndToken()));
+        //ret.put("startToken", create_Token(obj.getStartToken())); // Crashes
+        //ret.put("endToken", create_Token(obj.getEndToken())); // Crashes
 
         var namedChildren = new JSONObject();
         if (obj.getNamedChildren() != null) {
@@ -310,6 +298,24 @@ public class CFParse {
 
         ret.put("defaultVal", create_Node(obj.getDefaultVal()));
         ret.put("errorNode", create_Node(obj.getDefaultVal()));
+
+        ret.put("errorCountAtNode", obj.getErrorCountAtNode());
+        ret.put("closingToken", create_Token(obj.closingToken));
+        ret.put("functionDef", create_ASTfunctionDefinition(obj.functionDef));
+        //ret.put("functionDefEvaluated", obj.getFunctionDef()); // Stack overflow
+        ret.put("nodeHasComment", obj.hasCommentNode());
+
+        JSONArray spannedNodes = new JSONArray();
+        if (obj.spannedNodes != null) {
+            for(var spannedNode: obj.spannedNodes) {
+                spannedNodes.put(create_SimpleNode(spannedNode));
+            }
+        }
+        ret.put("spannedNodes", spannedNodes);
+
+        ret.put("colorizerVisited", obj.colorizerVisited);
+        ret.put("hashBeginToken", create_Token(obj.getHashBeginToken()));
+        ret.put("hashEndToken", create_Token(obj.getHashEndToken()));
 
         return ret;
     }
@@ -409,7 +415,15 @@ public class CFParse {
         }
         ret.put("finalParams", finalParams);
 
-        //Vector complexParams = new Vector();
+        JSONArray complexParams = null;
+        if (obj.complexParams != null) {
+            complexParams = new JSONArray();
+            for (var item : obj.complexParams) {
+                complexParams.put(recursiveWalk((Node) item));
+            }
+        }
+        ret.put("complexParams", complexParams);
+
         ret.put("containsDestructArguments", obj.containsDestructArguments);
         ret.put("openParenToken", create_Token(obj.openParenToken));
         ret.put("closeParenToken", create_Token(obj.closeParenToken));
@@ -540,6 +554,27 @@ public class CFParse {
         return ret;
     }
 
+    private static JSONObject create_ASTfuncparams(ASTfuncparams obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_ExprNode(obj);
+
+        ret.put("class", "ASTfuncparams");
+
+        //private Class[] paramTypes;
+        ret.put("funcName", obj.getFunctionName());
+        ret.put("paramIndex", obj.getParamIndex());
+        ret.put("isTyped", obj.getIsTyped());
+        ret.put("typeDeclaration", create_ExprNode(obj.getTypeDeclaration()));
+        ret.put("isVaradic", obj.isVaradic);
+        if (obj.getMethod() != null)
+            ret.put("method", obj.getMethod().toString());
+
+        return ret;
+    }
+
     private static JSONObject create_ASTruntimeCall(ASTruntimeCall obj) throws JSONException {
         if (obj == null) {
             return null;
@@ -552,11 +587,11 @@ public class CFParse {
         ret.put("isSafePreHook", obj.isSafePreHook());
         ret.put("isSafePostHook", obj.isSafePostHook());
         ret.put("newArgumentCfc", obj.getNewArgumentCfc());
-        //ret.put("arguments", create_ASTfuncparams(obj.arguments));
+        ret.put("arguments", create_ASTfuncparams(obj.arguments));
         ret.put("isSimpleReference", obj.hasSimpleReference());
         ret.put("newOperator", obj.isNew());
-        // newArgumentCfcToken
-        // dynamicCFCNameExpression
+        ret.put("newArgumentCfcToken", create_Token(obj.getNewArgumentCfcToken()));
+        ret.put("dynamicCFCNameExpression", create_ExprNode(obj.getDynamicCFCNameExpression()));
         ret.put("funcName", create_ExprNode(obj.getFuncName()));
         ret.put("isAssociativeArrayNotation", obj.isAssociativeArrayNotation());
         if (obj.parameterShadow != null) {
