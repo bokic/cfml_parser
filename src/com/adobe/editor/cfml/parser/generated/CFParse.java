@@ -12,6 +12,17 @@ import java.util.*;
 
 public class CFParse {
 
+    static {
+        String profileLocation = System.getenv("CFML_PARSER_PROFILE_LOCATION");
+
+        DictionaryManager.initDictionaries();
+        PreferencesManager.getInstance();
+        HashMap<String, Object> prefs = new HashMap<>();
+        prefs.put("profile.name", "default");
+        prefs.put("profile.location", Objects.requireNonNullElse(profileLocation, "."));
+        PreferencesManager.setActivePreferences(prefs);
+    }
+
     private static JSONObject create_StatementNode(StatementNode obj) throws JSONException {
         if (obj == null) {
             return null;
@@ -917,7 +928,7 @@ public class CFParse {
         return ret;
     }
 
-    static void parseFile(String pathName) {
+    public static void parseFile(String pathName, boolean writeJsonFiles) {
 
         if ((!pathName.toLowerCase().endsWith(".cfm")) && (!pathName.toLowerCase().endsWith(".cfc")))
             return;
@@ -942,7 +953,7 @@ public class CFParse {
 
             String json = root.toString(2);
 
-            if (System.getenv("CFML2JSON") != null) {
+            if (writeJsonFiles) {
                 String jsonPathName = pathName + ".json";
                 try (FileWriter myWriter = new FileWriter(jsonPathName)) {
                     myWriter.write(json);
@@ -956,7 +967,7 @@ public class CFParse {
         }
     }
 
-    static public void parseFileOrDir(String pathName) {
+    public static void parseFileOrDir(String pathName, boolean writeJsonFiles) {
         File isDir = new File(pathName);
 
         if (isDir.isDirectory()) {
@@ -965,24 +976,14 @@ public class CFParse {
                 for (var file : files) {
                     var filePathName = file.getAbsolutePath();
                     if (file.isDirectory()) {
-                        parseFileOrDir(filePathName);
+                        parseFileOrDir(filePathName, writeJsonFiles);
                     } else if (file.isFile()) {
-                        parseFile(filePathName);
+                        parseFile(filePathName, writeJsonFiles);
                     }
                 }
             }
         }
 
-        parseFile(pathName);
-    }
-
-    static public void init()
-    {
-        DictionaryManager.initDictionaries();
-        PreferencesManager.getInstance();
-        HashMap<String, Object> prefs = new HashMap<>();
-        prefs.put("profile.name", "default");
-        prefs.put("profile.location", ".");
-        PreferencesManager.setActivePreferences(prefs);
+        parseFile(pathName, writeJsonFiles);
     }
 }
