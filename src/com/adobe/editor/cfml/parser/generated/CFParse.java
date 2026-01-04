@@ -61,7 +61,7 @@ public class CFParse {
         ret.put("varName", obj.getVarname());
 
         JSONArray exceptionTypes = new JSONArray();
-        for(var exceptionType: obj.getExceptionTypes()) {
+        for (var exceptionType: obj.getExceptionTypes()) {
             exceptionTypes.put(exceptionType);
         }
         ret.put("exceptionTypes", exceptionTypes);
@@ -69,7 +69,7 @@ public class CFParse {
         JSONArray additionalExceptionExpr = new JSONArray();
         if (obj.getAdditionalExceptionExpr() != null) {
             for (var item : obj.getAdditionalExceptionExpr()) {
-                additionalExceptionExpr.put(create_ExprNode(item));
+                additionalExceptionExpr.put(recursiveWalk(item));
             }
         }
         ret.put("additionalExceptionExpr", additionalExceptionExpr);
@@ -102,7 +102,7 @@ public class CFParse {
         if (obj.catchBlocks != null) {
             catchBlocks = new JSONArray();
             for (var item : obj.catchBlocks) {
-                catchBlocks.put(create_ASTcfcatch((ASTcfcatch) item));
+                catchBlocks.put(recursiveWalk((Node)item));
             }
         }
         ret.put("catchBlocks", catchBlocks);
@@ -234,7 +234,7 @@ public class CFParse {
         JSONArray functions = new JSONArray();
         if (obj.functions != null) {
             for (var function : obj.functions) {
-                functions.put(create_ASTruntimeCall(function));
+                functions.put(recursiveWalk(function));
             }
         }
         ret.put("functions", functions);
@@ -286,8 +286,8 @@ public class CFParse {
         //protected Node parent; // Stack overflow
         JSONArray children = new JSONArray();
         if (obj.children != null) {
-            for(var child: obj.children) {
-                children.put(create_SimpleNode(child));
+            for (var child: obj.children) {
+                children.put(recursiveWalk(child));
             }
         }
         ret.put("children", children);
@@ -302,7 +302,7 @@ public class CFParse {
                 var name = item.getKey();
                 var value = item.getValue();
 
-                namedChildren.put(name, create_SimpleNode(value));
+                namedChildren.put(name, recursiveWalk(value));
             }
         }
         ret.put("namedChildren", namedChildren);
@@ -318,8 +318,8 @@ public class CFParse {
 
         JSONArray spannedNodes = new JSONArray();
         if (obj.spannedNodes != null) {
-            for(var spannedNode: obj.spannedNodes) {
-                spannedNodes.put(create_SimpleNode(spannedNode));
+            for (var spannedNode: obj.spannedNodes) {
+                spannedNodes.put(recursiveWalk(spannedNode));
             }
         }
         ret.put("spannedNodes", spannedNodes);
@@ -902,6 +902,8 @@ public class CFParse {
             case ASTcfcomponent child             -> ret = create_ASTcfcomponent(child);
             case ASTelidedText child              -> ret = create_ASTelidedText(child);
             case ASTexprlist child                -> ret = create_ASTexprlist(child);
+            case ASTfuncparams child              -> ret = create_ASTfuncparams(child);
+            case ASTcfcatch child                 -> ret = create_ASTcfcatch(child);
             case null, default -> {
                 ret = new JSONObject();
                 ret.put("class", "Unknown");
