@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e
+
+java -cp cfml_parser.jar:acf-ls-jar-with-dependencies.jar:json-20250517.jar Main "$@"
