@@ -293,8 +293,8 @@ public class CFParse {
         ret.put("children", children);
 
         ret.put("id", obj.id);
-        //ret.put("startToken", create_Token(obj.getStartToken())); // Crashes
-        //ret.put("endToken", create_Token(obj.getEndToken())); // Crashes
+        ret.put("startToken", create_Token(obj.getActualStartToken()));
+        ret.put("endToken", create_Token(obj.getActualEndToken()));
 
         var namedChildren = new JSONObject();
         if (obj.getNamedChildren() != null) {
