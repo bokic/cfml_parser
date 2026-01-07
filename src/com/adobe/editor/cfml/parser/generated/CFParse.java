@@ -932,6 +932,8 @@ public class CFParse {
 
     public static void parseFile(String pathName, boolean writeJsonFiles) {
 
+        CFMLParser parser = null;
+
         if ((!pathName.toLowerCase().endsWith(".cfm")) && (!pathName.toLowerCase().endsWith(".cfc")))
             return;
 
@@ -941,7 +943,7 @@ public class CFParse {
             InputStream inStream = new FileInputStream(pathName);
             Reader reader = BOMUtil.createReader(inStream);
             ASCII_CharStream charStream = new ASCII_CharStream(reader);
-            CFMLParser parser = CFMLParserManager.INSTANCE.getParser(charStream);
+            parser = CFMLParserManager.INSTANCE.getParser(charStream);
             parser.init();
             ASTstart start = parser.start();
 
@@ -964,8 +966,11 @@ public class CFParse {
 
             System.out.println(json);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException _) {
+        }
+
+        if (parser != null) {
+            CFMLParserManager.INSTANCE.returnParser(parser);
         }
     }
 
@@ -984,8 +989,8 @@ public class CFParse {
                     }
                 }
             }
+        } else {
+            parseFile(pathName, writeJsonFiles);
         }
-
-        parseFile(pathName, writeJsonFiles);
     }
 }
