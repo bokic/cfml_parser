@@ -144,8 +144,10 @@ public class CFParse {
         JSONObject attrMap = null;
         if (obj.attrMap != null) {
             attrMap = new JSONObject();
-            for (var key : obj.attrMap.keySet()) {
-                attrMap.put((String) key, recursiveWalk((Node) obj.attrMap.get(key)));
+            for (var entry : ((java.util.Map<?, ?>) obj.attrMap).entrySet()) {
+                if (entry.getValue() instanceof Node child) {
+                    attrMap.put(String.valueOf(entry.getKey()), recursiveWalk(child));
+                }
             }
         }
         ret.put("attrMap", attrMap);
@@ -251,14 +253,101 @@ public class CFParse {
 
         ret.put("class", "ASTStructInitializer");
 
-        JSONObject initializers = new JSONObject();
-        for (var key : obj.initializers.keySet()) {
-            initializers.put((String) key, recursiveWalk((Node) obj.initializers.get(key)));
+        JSONArray initializers = new JSONArray();
+        if (obj.initializers != null) {
+            for (var entry : ((java.util.Map<?, ?>) obj.initializers).entrySet()) {
+                JSONObject pair = new JSONObject();
+                Object k = entry.getKey();
+                Object v = entry.getValue();
+                if (k instanceof Node nk) {
+                    pair.put("key", recursiveWalk(nk));
+                } else if (k != null) {
+                    pair.put("key", k.toString());
+                }
+                if (v instanceof Node nv) {
+                    pair.put("val", recursiveWalk(nv));
+                } else if (v != null) {
+                    pair.put("val", v.toString());
+                }
+                initializers.put(pair);
+            }
         }
         ret.put("initializers", initializers);
         ret.put("orderedStruct", obj.orderedStruct);
         ret.put("caseSensitiveStruct", obj.caseSensitiveStruct);
 
+        return ret;
+    }
+
+    private static JSONObject create_ASTArrayInitializer(ASTArrayInitializer obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+
+        JSONObject ret = create_ArrayStructInitializer(obj);
+
+        ret.put("class", "ASTArrayInitializer");
+
+        JSONArray initializers = new JSONArray();
+        if (obj.initializers != null) {
+            for (var item : obj.initializers) {
+                if (item instanceof Node n) {
+                    initializers.put(recursiveWalk(n));
+                } else if (item != null) {
+                    initializers.put(item.toString());
+                }
+            }
+        }
+        ret.put("initializers", initializers);
+        ret.put("isTyped", obj.getIsTyped());
+        ret.put("spreadOperation", obj.isSpreadOperationType());
+        ret.put("typeDeclaration", create_ExprNode(obj.getTypeDeclaration()));
+
+        return ret;
+    }
+
+    private static JSONObject create_ASTcfcontinue(ASTcfcontinue obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+        JSONObject ret = create_StatementNode(obj);
+        ret.put("class", "ASTcfcontinue");
+        return ret;
+    }
+
+    private static JSONObject create_ASTcfproperty(ASTcfproperty obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+        JSONObject ret = create_TagNode(obj);
+        ret.put("class", "ASTcfproperty");
+        return ret;
+    }
+
+    private static JSONObject create_ASTcfinterface(ASTcfinterface obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+        JSONObject ret = create_TagNode(obj);
+        ret.put("class", "ASTcfinterface");
+        return ret;
+    }
+
+    private static JSONObject create_ASTcomponent(ASTcomponent obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+        JSONObject ret = create_SimpleNode(obj);
+        ret.put("class", "ASTcomponent");
+        return ret;
+    }
+
+    private static JSONObject create_ASTcfscriptComponent(ASTcfscriptComponent obj) throws JSONException {
+        if (obj == null) {
+            return null;
+        }
+        JSONObject ret = create_TagNode(obj);
+        ret.put("class", "ASTcfscriptComponent");
         return ret;
     }
 
@@ -609,6 +698,11 @@ public class CFParse {
         return ret;
     }
 
+    private static final java.util.regex.Pattern CUSTOM_TAG_PATTERN =
+        java.util.regex.Pattern.compile("<\\s*([a-zA-Z0-9_]+:[a-zA-Z0-9_-]+|cf_[a-zA-Z0-9_-]+)(?:\\s+[^>]*)?(?:/?>)?", java.util.regex.Pattern.DOTALL | java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    private static String currentSource = null;
+
     private static JSONObject create_ASTpcdata(ASTpcdata obj) throws JSONException {
         if (obj == null) {
             return null;
@@ -627,6 +721,80 @@ public class CFParse {
                 overflowData.put(obj.overflowData.elementAt(c));
 
             ret.put("overflowData", overflowData);
+        }
+
+        // Second pass: extract custom tags (<cf_...> or <prefix:...>) from template pcdata
+        Token st = obj.getActualStartToken();
+        Token et = obj.getActualEndToken();
+        int baseOffset = -1;
+        String textToScan = null;
+
+        if (currentSource != null && st != null && et != null) {
+            int specialLen = 0;
+            Token sp = st.specialToken;
+            while (sp != null) {
+                if (sp.image != null) {
+                    specialLen += sp.image.length();
+                }
+                sp = sp.specialToken;
+            }
+            int s = st.actualStartColumnOffset - specialLen;
+            int e = Math.min(et.actualEndColumnOffset + 1, currentSource.length());
+            if (s >= 0 && e >= s) {
+                baseOffset = s;
+                textToScan = currentSource.substring(s, e);
+            }
+        } else if (obj.buffer != null) {
+            textToScan = obj.buffer.toString();
+            if (st != null && st.actualStartColumnOffset >= 0) {
+                int specialLen = 0;
+                Token sp = st.specialToken;
+                while (sp != null) {
+                    if (sp.image != null) {
+                        specialLen += sp.image.length();
+                    }
+                    sp = sp.specialToken;
+                }
+                baseOffset = st.actualStartColumnOffset - specialLen;
+            }
+        }
+
+        if (textToScan != null && baseOffset >= 0 && (textToScan.contains(":") || textToScan.toLowerCase().contains("<cf_"))) {
+            java.util.regex.Matcher m = CUSTOM_TAG_PATTERN.matcher(textToScan);
+            JSONArray customTags = null;
+
+            while (m.find()) {
+                if (customTags == null) {
+                    customTags = new JSONArray();
+                }
+                String tagName = m.group(1);
+                int tagStartOffset = baseOffset + m.start();
+                int tagEndOffset = baseOffset + m.end();
+
+                JSONObject tagNode = new JSONObject();
+                tagNode.put("class", "ASTcftag");
+                tagNode.put("tagName", tagName);
+
+                JSONObject startToken = new JSONObject();
+                startToken.put("class", "Token");
+                startToken.put("image", tagName);
+                startToken.put("actualStartColumnOffset", tagStartOffset);
+                startToken.put("actualEndColumnOffset", tagStartOffset + tagName.length());
+                tagNode.put("startToken", startToken);
+
+                JSONObject endToken = new JSONObject();
+                endToken.put("class", "Token");
+                endToken.put("image", ">");
+                endToken.put("actualStartColumnOffset", tagEndOffset - 1);
+                endToken.put("actualEndColumnOffset", tagEndOffset);
+                tagNode.put("endToken", endToken);
+
+                customTags.put(tagNode);
+            }
+
+            if (customTags != null) {
+                ret.put("customTags", customTags);
+            }
         }
 
         return ret;
@@ -855,11 +1023,17 @@ public class CFParse {
 
     private static JSONObject recursiveWalk(com.adobe.editor.cfml.parser.generated.Node node) throws JSONException {
         JSONObject ret;
-
         switch (node) {
             case ASTcfscript child                -> ret = create_ASTcfscript(child);
             case ASTcfbreak child                 -> ret = create_ASTcfbreak(child);
             case ASTreturnStatement child         -> ret = create_ASTreturnStatement(child);
+            case ASTcffinally child               -> ret = create_ASTcffinally(child);
+            case ASTcfcontinue child              -> ret = create_ASTcfcontinue(child);
+            case ASTcfproperty child              -> ret = create_ASTcfproperty(child);
+            case ASTcfinterface child             -> ret = create_ASTcfinterface(child);
+            case ASTcfscriptComponent child       -> ret = create_ASTcfscriptComponent(child);
+            case ASTcomponent child               -> ret = create_ASTcomponent(child);
+            case ASTArrayInitializer child        -> ret = create_ASTArrayInitializer(child);
             case ASTcfloop child                  -> ret = create_ASTcfloop(child);
             case ASTcftag child                   -> ret = create_ASTcftag(child);
             case ASTpcdata child                  -> ret = create_ASTpcdata(child);
@@ -923,6 +1097,9 @@ public class CFParse {
         System.err.println("Parsing: " + pathName);
 
         try {
+            byte[] fileBytes = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(pathName));
+            currentSource = new String(fileBytes, java.nio.charset.StandardCharsets.UTF_8);
+
             InputStream inStream = new FileInputStream(pathName);
             Reader reader = BOMUtil.createReader(inStream);
             ASCII_CharStream charStream = new ASCII_CharStream(reader);
@@ -950,6 +1127,8 @@ public class CFParse {
             System.out.println(json);
 
         } catch (IOException _) {
+        } finally {
+            currentSource = null;
         }
 
         if (parser != null) {
