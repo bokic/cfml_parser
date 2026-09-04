@@ -284,14 +284,6 @@ public class CFParse {
         ret.put("class", "SimpleNode");
 
         //protected Node parent; // Stack overflow
-        JSONArray children = new JSONArray();
-        if (obj.children != null) {
-            for (var child: obj.children) {
-                children.put(recursiveWalk(child));
-            }
-        }
-        ret.put("children", children);
-
         ret.put("id", obj.id);
         ret.put("startToken", create_Token(obj.getActualStartToken()));
         ret.put("endToken", create_Token(obj.getActualEndToken()));
@@ -782,15 +774,6 @@ public class CFParse {
         }
 
         var ret = new JSONObject();
-
-        if (obj.jjtGetNumChildren() > 0) {
-            var children = new JSONArray();
-            for (int c = 0; c < obj.jjtGetNumChildren(); c++) {
-                var child = obj.jjtGetChild(c);
-                children.put(recursiveWalk(child));
-            }
-            ret.put("children", children);
-        }
 
         ret.put("static", obj.isStatic());
 
